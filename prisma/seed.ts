@@ -1,7 +1,7 @@
 import { PrismaPg } from '@prisma/adapter-pg';
 import { PrismaClient, Role } from '../src/generated/prisma/client';
-import { appConfig } from '../src/shared/config/app.config';
-import { hashPassword } from '../src/shared/utils/password';
+import { appConfig } from '../src/common/config/app.config';
+import { hashPassword } from '../src/common/utils/password';
 
 const prisma = new PrismaClient({
   adapter: new PrismaPg(appConfig.databaseUrl),

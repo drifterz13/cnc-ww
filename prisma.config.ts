@@ -1,5 +1,5 @@
 import { defineConfig } from "prisma/config";
-import { appConfig } from "./src/shared/config/app.config";
+import { appConfig } from "./src/common/config/app.config";
 
 export default defineConfig({
   schema: "prisma/schema.prisma",
