@@ -1,0 +1,8 @@
+{
+  "extends": "@concert-wow/typescript-config/nestjs.json",
+  "compilerOptions": {
+    "outDir": "./dist",
+    "baseUrl": "./",
+    "tsBuildInfoFile": "./dist/.tsbuildinfo"
+  }
+}

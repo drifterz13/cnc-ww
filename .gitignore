@@ -1,6 +1,8 @@
 # compiled output
-/dist
-/node_modules
+dist/
+.next/
+next-env.d.ts
+node_modules/
 .pnpm-store/
 
 # Logs
@@ -16,7 +18,7 @@ lerna-debug.log*
 .DS_Store
 
 # Tests
-/coverage
+coverage/
 /.nyc_output
 
 # IDEs and editors
@@ -34,5 +36,5 @@ lerna-debug.log*
 !.vscode/tasks.json
 !.vscode/launch.json
 !.vscode/extensions.json
-/src/infrastrucure/prisma/generated
-/test/.runtime
+apps/api/src/infrastrucure/prisma/generated/
+apps/api/test/.runtime/
