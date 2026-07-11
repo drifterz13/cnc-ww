@@ -12,7 +12,6 @@ type ErrorResponse = {
   message: string | string[];
 };
 
-/** Converts known application and database errors into consistent HTTP responses. */
 @Catch(AppError, Prisma.PrismaClientKnownRequestError)
 export class GlobalExceptionFilter implements ExceptionFilter {
   catch(

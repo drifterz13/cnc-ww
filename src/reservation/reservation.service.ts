@@ -29,6 +29,12 @@ export class ReservationService {
       );
 
       if (seatAllocation.count === 0) {
+        const concert = await this.concertRepo.findById(concertId);
+
+        if (!concert) {
+          throw new AppError('Concert not found', HttpStatus.NOT_FOUND);
+        }
+
         throw new AppError('This concert is fully booked', HttpStatus.CONFLICT);
       }
 
@@ -41,6 +47,12 @@ export class ReservationService {
       const cancellation = await this.reservationRepo.cancel(userId, concertId);
 
       if (cancellation.count === 0) {
+        const concert = await this.concertRepo.findById(concertId);
+
+        if (!concert) {
+          throw new AppError('Concert not found', HttpStatus.NOT_FOUND);
+        }
+
         throw new AppError(
           'No active reservation was found for this concert',
           HttpStatus.NOT_FOUND,

@@ -94,6 +94,31 @@ describe('Concert reservation', () => {
     ).resolves.toBe(1);
   });
 
+  it('does not allow a user to reserve the same concert after cancellation', async () => {
+    const user = users[0];
+    const userSession = await signIn(app, user.email, user.password);
+
+    await request(app.getHttpServer())
+      .post(`/concerts/${concertId}/reservations`)
+      .set('Authorization', `Bearer ${userSession}`)
+      .expect(201);
+    await request(app.getHttpServer())
+      .delete(`/concerts/${concertId}/reservations`)
+      .set('Authorization', `Bearer ${userSession}`)
+      .expect(204);
+
+    await request(app.getHttpServer())
+      .post(`/concerts/${concertId}/reservations`)
+      .set('Authorization', `Bearer ${userSession}`)
+      .expect(409);
+
+    const concert = await prisma.concert.findUniqueOrThrow({
+      where: { id: concertId },
+    });
+
+    expect(concert.availableSeats).toBe(3);
+  });
+
   it('allows a user to cancel an active reservation and restore an available ticket', async () => {
     const user = users[0];
     const userSession = await signIn(app, user.email, user.password);
@@ -177,6 +202,77 @@ describe('Concert reservation', () => {
     });
 
     expect(concert.availableSeats).toBe(2);
+  });
+
+  it('returns not found when a user reserves a seat at a concert that does not exist', async () => {
+    const user = users[0];
+    const userSession = await signIn(app, user.email, user.password);
+
+    const response = await request(app.getHttpServer())
+      .post(`/concerts/${concertId + 100000}/reservations`)
+      .set('Authorization', `Bearer ${userSession}`)
+      .expect(404);
+
+    expect(response.body).toMatchObject({
+      statusCode: 404,
+      message: 'Concert not found',
+    });
+  });
+
+  it('gives a user only one reservation when they request two seats at once', async () => {
+    const user = users[0];
+    const userSession = await signIn(app, user.email, user.password);
+
+    const reservationResponses = await Promise.all([
+      request(app.getHttpServer())
+        .post(`/concerts/${concertId}/reservations`)
+        .set('Authorization', `Bearer ${userSession}`),
+      request(app.getHttpServer())
+        .post(`/concerts/${concertId}/reservations`)
+        .set('Authorization', `Bearer ${userSession}`),
+    ]);
+    const concert = await prisma.concert.findUniqueOrThrow({
+      where: { id: concertId },
+    });
+
+    expect(
+      reservationResponses.filter(({ status }) => status === 201),
+    ).toHaveLength(1);
+    expect(
+      reservationResponses.filter(({ status }) => status === 409),
+    ).toHaveLength(1);
+    expect(await prisma.reservation.count({ where: { concertId } })).toBe(1);
+    expect(concert.availableSeats).toBe(2);
+  });
+
+  it('returns one seat when a user cancels the same reservation twice at once', async () => {
+    const user = users[0];
+    const userSession = await signIn(app, user.email, user.password);
+
+    await request(app.getHttpServer())
+      .post(`/concerts/${concertId}/reservations`)
+      .set('Authorization', `Bearer ${userSession}`)
+      .expect(201);
+
+    const cancellationResponses = await Promise.all([
+      request(app.getHttpServer())
+        .delete(`/concerts/${concertId}/reservations`)
+        .set('Authorization', `Bearer ${userSession}`),
+      request(app.getHttpServer())
+        .delete(`/concerts/${concertId}/reservations`)
+        .set('Authorization', `Bearer ${userSession}`),
+    ]);
+    const concert = await prisma.concert.findUniqueOrThrow({
+      where: { id: concertId },
+    });
+
+    expect(
+      cancellationResponses.filter(({ status }) => status === 204),
+    ).toHaveLength(1);
+    expect(
+      cancellationResponses.filter(({ status }) => status === 404),
+    ).toHaveLength(1);
+    expect(concert.availableSeats).toBe(3);
   });
 
   it('given three total seats, allocates only three reservations when five users reserve at once', async () => {
