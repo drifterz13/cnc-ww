@@ -6,7 +6,7 @@ CREATE TYPE "ReservationStatus" AS ENUM ('ACTIVE', 'CANCELLED');
 
 -- CreateTable
 CREATE TABLE "User" (
-    "id" TEXT NOT NULL,
+    "id" SERIAL NOT NULL,
     "email" TEXT NOT NULL,
     "passwordHash" TEXT NOT NULL,
     "role" "Role" NOT NULL DEFAULT 'USER',
