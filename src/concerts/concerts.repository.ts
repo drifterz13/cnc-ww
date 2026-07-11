@@ -41,4 +41,13 @@ export class ConcertRepo {
       },
     });
   }
+
+  incrementAvailableSeats(concertId: number) {
+    return this.prisma.getClient().concert.update({
+      where: { id: concertId },
+      data: {
+        availableSeats: { increment: 1 },
+      },
+    });
+  }
 }

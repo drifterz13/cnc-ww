@@ -24,4 +24,18 @@ export class ReservationRepo {
       },
     });
   }
+
+  cancel(userId: number, concertId: number) {
+    return this.prisma.getClient().reservation.updateMany({
+      where: {
+        userId,
+        concertId,
+        status: 'ACTIVE',
+      },
+      data: {
+        status: 'CANCELLED',
+        cancelledAt: new Date(),
+      },
+    });
+  }
 }

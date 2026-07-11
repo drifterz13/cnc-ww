@@ -1,5 +1,8 @@
 import {
   Controller,
+  Delete,
+  HttpCode,
+  HttpStatus,
   Param,
   ParseIntPipe,
   Post,
@@ -24,5 +27,15 @@ export class ReservationController {
     @Param('concertId', ParseIntPipe) concertId: number,
   ) {
     return this.reservationService.reserveSeat(user.id, concertId);
+  }
+
+  @Delete()
+  @HttpCode(HttpStatus.NO_CONTENT)
+  @UserOnly()
+  cancelReservation(
+    @CurrentUser() user: AuthenticatedUser,
+    @Param('concertId', ParseIntPipe) concertId: number,
+  ) {
+    return this.reservationService.cancelReservation(user.id, concertId);
   }
 }

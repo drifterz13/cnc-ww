@@ -35,4 +35,19 @@ export class ReservationService {
       return this.reservationRepo.create(userId, concertId);
     });
   }
+
+  cancelReservation(userId: number, concertId: number) {
+    return this.prisma.runInTransaction(async () => {
+      const cancellation = await this.reservationRepo.cancel(userId, concertId);
+
+      if (cancellation.count === 0) {
+        throw new AppError(
+          'No active reservation was found for this concert',
+          HttpStatus.NOT_FOUND,
+        );
+      }
+
+      await this.concertRepo.incrementAvailableSeats(concertId);
+    });
+  }
 }

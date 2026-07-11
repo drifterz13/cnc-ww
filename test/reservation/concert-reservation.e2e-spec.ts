@@ -7,7 +7,7 @@ import { hashPassword } from '../../src/common/utils/password';
 import { ReservationStatus, Role } from '../../src/generated/prisma/client';
 import { PrismaService } from '../../src/infrastrucure/prisma/prisma.service';
 import { ReservationModule } from '../../src/reservation/reservation.module';
-import { users } from '../fixtures/accounts.fixture';
+import { accounts, users } from '../fixtures/accounts.fixture';
 import { signIn } from '../helpers/auth.helper';
 
 describe('Concert reservation', () => {
@@ -42,11 +42,18 @@ describe('Concert reservation', () => {
     await prisma.concert.deleteMany();
     await prisma.user.deleteMany();
     await prisma.user.createMany({
-      data: users.map((user) => ({
-        email: user.email,
-        passwordHash,
-        role: Role.USER,
-      })),
+      data: [
+        {
+          email: accounts.admin.email,
+          passwordHash,
+          role: Role.ADMIN,
+        },
+        ...users.map((user) => ({
+          email: user.email,
+          passwordHash,
+          role: Role.USER,
+        })),
+      ],
     });
     const concert = await prisma.concert.create({
       data: {
@@ -82,6 +89,91 @@ describe('Concert reservation', () => {
     await expect(
       prisma.reservation.count({ where: { concertId } }),
     ).resolves.toBe(1);
+  });
+
+  it('allows a user to cancel an active reservation and restore an available ticket', async () => {
+    const user = users[0];
+    const userSession = await signIn(app, user.email, user.password);
+
+    await request(app.getHttpServer())
+      .post(`/concerts/${concertId}/reservations`)
+      .set('Authorization', `Bearer ${userSession}`)
+      .expect(201);
+
+    await request(app.getHttpServer())
+      .delete(`/concerts/${concertId}/reservations`)
+      .set('Authorization', `Bearer ${userSession}`)
+      .expect(204);
+
+    const userAccount = await prisma.user.findUniqueOrThrow({
+      where: { email: user.email },
+    });
+    const reservation = await prisma.reservation.findUniqueOrThrow({
+      where: {
+        userId_concertId: {
+          userId: userAccount.id,
+          concertId,
+        },
+      },
+    });
+    const concert = await prisma.concert.findUniqueOrThrow({
+      where: { id: concertId },
+    });
+
+    expect(reservation.status).toBe(ReservationStatus.CANCELLED);
+    expect(reservation.cancelledAt).toEqual(expect.any(Date));
+    expect(concert.availableSeats).toBe(3);
+  });
+
+  it('does not cancel a reservation that is already cancelled', async () => {
+    const user = users[0];
+    const userSession = await signIn(app, user.email, user.password);
+
+    await request(app.getHttpServer())
+      .post(`/concerts/${concertId}/reservations`)
+      .set('Authorization', `Bearer ${userSession}`)
+      .expect(201);
+    await request(app.getHttpServer())
+      .delete(`/concerts/${concertId}/reservations`)
+      .set('Authorization', `Bearer ${userSession}`)
+      .expect(204);
+
+    const response = await request(app.getHttpServer())
+      .delete(`/concerts/${concertId}/reservations`)
+      .set('Authorization', `Bearer ${userSession}`)
+      .expect(404);
+    const concert = await prisma.concert.findUniqueOrThrow({
+      where: { id: concertId },
+    });
+
+    expect(response.body.statusCode).toBe(404);
+    expect(concert.availableSeats).toBe(3);
+  });
+
+  it('does not allow an admin to cancel a user reservation', async () => {
+    const user = users[0];
+    const userSession = await signIn(app, user.email, user.password);
+    const adminSession = await signIn(
+      app,
+      accounts.admin.email,
+      accounts.admin.password,
+    );
+
+    await request(app.getHttpServer())
+      .post(`/concerts/${concertId}/reservations`)
+      .set('Authorization', `Bearer ${userSession}`)
+      .expect(201);
+
+    await request(app.getHttpServer())
+      .delete(`/concerts/${concertId}/reservations`)
+      .set('Authorization', `Bearer ${adminSession}`)
+      .expect(403);
+
+    const concert = await prisma.concert.findUniqueOrThrow({
+      where: { id: concertId },
+    });
+
+    expect(concert.availableSeats).toBe(2);
   });
 
   it('given three total seats, allocates only three reservations when five users reserve at once', async () => {
