@@ -1,9 +1,6 @@
 import { INestApplication } from '@nestjs/common';
 import request from 'supertest';
-import {
-  seededAdminAccount,
-  seededUserAccount,
-} from '../fixtures/accounts.fixture';
+import { accounts } from '../fixtures/accounts.fixture';
 
 export async function signIn(
   app: INestApplication,
@@ -19,9 +16,9 @@ export async function signIn(
 }
 
 export function signInAsAdmin(app: INestApplication): Promise<string> {
-  return signIn(app, seededAdminAccount.email, seededAdminAccount.password);
+  return signIn(app, accounts.admin.email, accounts.admin.password);
 }
 
 export function signInAsUser(app: INestApplication): Promise<string> {
-  return signIn(app, seededUserAccount.email, seededUserAccount.password);
+  return signIn(app, accounts.user.email, accounts.user.password);
 }

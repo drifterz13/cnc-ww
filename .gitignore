@@ -35,6 +35,7 @@ lerna-debug.log*
 !.vscode/launch.json
 !.vscode/extensions.json
 /src/generated/prisma
+/test/.runtime
 
 /prisma/src/infrastrucure/persistence/prisma
 

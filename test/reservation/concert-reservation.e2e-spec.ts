@@ -2,69 +2,26 @@ import { INestApplication, ValidationPipe } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import request from 'supertest';
 import { AuthModule } from '../../src/auth/auth.module';
-import { AuthRepo } from '../../src/auth/auth.repo';
-import { ConcertRepo } from '../../src/concerts/concerts.repository';
 import { GlobalExceptionFilter } from '../../src/common/filters/global-exception.filter';
 import { hashPassword } from '../../src/common/utils/password';
 import { ReservationStatus, Role } from '../../src/generated/prisma/client';
-import { ReservationModule } from '../../src/reservation/reservation.module';
-import { ReservationRepo } from '../../src/reservation/reservation.repository';
 import { PrismaService } from '../../src/infrastrucure/prisma/prisma.service';
-import { seededConcertgoers } from '../fixtures/accounts.fixture';
+import { ReservationModule } from '../../src/reservation/reservation.module';
+import { users } from '../fixtures/accounts.fixture';
 import { signIn } from '../helpers/auth.helper';
 
 describe('Concert reservation', () => {
-  const authRepo = {
-    findByEmail: jest.fn(),
-  };
-  const reservationRepo = {
-    findByUserAndConcert: jest.fn(),
-    create: jest.fn(),
-  };
-  const concertRepo = {
-    decrementAvailableSeats: jest.fn(),
-  };
-  const prisma = {
-    runInTransaction: jest.fn(),
-  };
-  const concertgoers = Object.fromEntries(
-    seededConcertgoers.map((concertgoer, index) => [
-      concertgoer.email,
-      {
-        id: index + 1,
-        email: concertgoer.email,
-        passwordHash: '',
-        role: Role.USER,
-      },
-    ]),
-  );
+  const password = 'Password123!';
   let app: INestApplication;
+  let prisma: PrismaService;
+  let passwordHash: string;
+  let concertId: number;
 
   beforeAll(async () => {
-    await Promise.all(
-      seededConcertgoers.map(async (concertgoer) => {
-        concertgoers[concertgoer.email].passwordHash = await hashPassword(
-          concertgoer.password,
-        );
-      }),
-    );
-    authRepo.findByEmail.mockImplementation((email: string) => {
-      return concertgoers[email] ?? null;
-    });
-    prisma.runInTransaction.mockImplementation((work) => work());
-
+    passwordHash = await hashPassword(password);
     const moduleFixture: TestingModule = await Test.createTestingModule({
       imports: [AuthModule, ReservationModule],
-    })
-      .overrideProvider(AuthRepo)
-      .useValue(authRepo)
-      .overrideProvider(ReservationRepo)
-      .useValue(reservationRepo)
-      .overrideProvider(ConcertRepo)
-      .useValue(concertRepo)
-      .overrideProvider(PrismaService)
-      .useValue(prisma)
-      .compile();
+    }).compile();
 
     app = moduleFixture.createNestApplication();
     app.useGlobalPipes(
@@ -77,118 +34,78 @@ describe('Concert reservation', () => {
     app.useGlobalFilters(new GlobalExceptionFilter());
     await app.init();
     await app.listen(0);
+    prisma = moduleFixture.get(PrismaService);
   });
 
-  beforeEach(() => {
-    jest.clearAllMocks();
+  beforeEach(async () => {
+    await prisma.reservation.deleteMany();
+    await prisma.concert.deleteMany();
+    await prisma.user.deleteMany();
+    await prisma.user.createMany({
+      data: users.map((user) => ({
+        email: user.email,
+        passwordHash,
+        role: Role.USER,
+      })),
+    });
+    const concert = await prisma.concert.create({
+      data: {
+        name: 'My Concert',
+        description: 'A free outdoor concert',
+        totalSeats: 3,
+        availableSeats: 3,
+      },
+    });
+
+    concertId = concert.id;
   });
 
   afterAll(async () => {
     await app.close();
   });
 
-  it('does not give a concertgoer a second reservation for the same concert', async () => {
-    reservationRepo.findByUserAndConcert
-      .mockResolvedValueOnce(null)
-      .mockResolvedValueOnce({ id: 1 });
-    concertRepo.decrementAvailableSeats.mockResolvedValue({ count: 1 });
-    reservationRepo.create.mockResolvedValue({
-      id: 1,
-      userId: 1,
-      concertId: 1,
-      status: ReservationStatus.ACTIVE,
-      reservedAt: new Date(),
-      cancelledAt: null,
-    });
-    const concertgoer = seededConcertgoers[0];
-    const concertgoerSession = await signIn(
-      app,
-      concertgoer.email,
-      concertgoer.password,
-    );
+  it('does not give a user a second reservation for the same concert', async () => {
+    const user = users[0];
+    const userSession = await signIn(app, user.email, user.password);
 
     const firstReservation = await request(app.getHttpServer())
-      .post('/concerts/1/reservations')
-      .set('Authorization', `Bearer ${concertgoerSession}`);
-
+      .post(`/concerts/${concertId}/reservations`)
+      .set('Authorization', `Bearer ${userSession}`);
     const secondReservation = await request(app.getHttpServer())
-      .post('/concerts/1/reservations')
-      .set('Authorization', `Bearer ${concertgoerSession}`);
+      .post(`/concerts/${concertId}/reservations`)
+      .set('Authorization', `Bearer ${userSession}`);
 
     expect(firstReservation.status).toBe(201);
     expect(firstReservation.body.status).toBe(ReservationStatus.ACTIVE);
     expect(secondReservation.status).toBe(409);
     expect(secondReservation.body.statusCode).toBe(409);
+    await expect(
+      prisma.reservation.count({ where: { concertId } }),
+    ).resolves.toBe(1);
   });
 
-  it('gives the first three concertgoers the three remaining seats when five try at once', async () => {
-    let availableSeats = 3;
-    const reservedConcertgoers = new Set<number>();
-
-    reservationRepo.findByUserAndConcert.mockImplementation(
-      async (userId: number) => {
-        if (reservedConcertgoers.has(userId)) {
-          return { id: userId };
-        }
-
-        return null;
-      },
+  it('allocates only three reservations when five users reserve at once', async () => {
+    const userSessions = await Promise.all(
+      users.map((user) => signIn(app, user.email, user.password)),
     );
-    concertRepo.decrementAvailableSeats.mockImplementation(async () => {
-      if (availableSeats === 0) {
-        return { count: 0 };
-      }
-
-      availableSeats -= 1;
-
-      return { count: 1 };
-    });
-    reservationRepo.create.mockImplementation(
-      async (userId: number, concertId: number) => {
-        reservedConcertgoers.add(userId);
-
-        return {
-          id: userId,
-          userId,
-          concertId,
-          status: ReservationStatus.ACTIVE,
-          reservedAt: new Date(),
-          cancelledAt: null,
-        };
-      },
-    );
-
-    const concertgoerSessions = await Promise.all(
-      seededConcertgoers.map((concertgoer) =>
-        signIn(app, concertgoer.email, concertgoer.password),
-      ),
-    );
-
     const reservationAttempts = await Promise.all(
-      concertgoerSessions.map((session) =>
+      userSessions.map((session) =>
         request(app.getHttpServer())
-          .post('/concerts/1/reservations')
+          .post(`/concerts/${concertId}/reservations`)
           .set('Authorization', `Bearer ${session}`),
       ),
     );
+    const concert = await prisma.concert.findUniqueOrThrow({
+      where: { id: concertId },
+    });
 
-    expect(reservationAttempts.at(0)?.status).toBe(201);
-    expect(reservationAttempts.at(0)?.body.status).toBe(
-      ReservationStatus.ACTIVE,
-    );
-    expect(reservationAttempts.at(1)?.status).toBe(201);
-    expect(reservationAttempts.at(1)?.body.status).toBe(
-      ReservationStatus.ACTIVE,
-    );
-    expect(reservationAttempts.at(2)?.status).toBe(201);
-    expect(reservationAttempts.at(2)?.body.status).toBe(
-      ReservationStatus.ACTIVE,
-    );
-    expect(reservationAttempts.at(3)?.status).toBe(409);
-    expect(reservationAttempts.at(3)?.body.statusCode).toBe(409);
-    expect(reservationAttempts.at(4)?.status).toBe(409);
-    expect(reservationAttempts.at(4)?.body.statusCode).toBe(409);
-    expect(availableSeats).toBe(0);
-    expect(reservedConcertgoers).toEqual(new Set([1, 2, 3]));
+    expect(
+      reservationAttempts.filter(({ status }) => status === 201),
+    ).toHaveLength(3);
+    expect(
+      reservationAttempts.filter(({ status }) => status === 409),
+    ).toHaveLength(2);
+    expect(await prisma.reservation.count({ where: { concertId } })).toBe(3);
+    expect(concert.availableSeats).toBe(0);
   });
 });

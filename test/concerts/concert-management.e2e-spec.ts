@@ -7,10 +7,7 @@ import { ConcertsModule } from '../../src/concerts/concerts.module';
 import { ConcertRepo } from '../../src/concerts/concerts.repository';
 import { Role } from '../../src/generated/prisma/client';
 import { hashPassword } from '../../src/common/utils/password';
-import {
-  seededAdminAccount,
-  seededUserAccount,
-} from '../fixtures/accounts.fixture';
+import { accounts } from '../fixtures/accounts.fixture';
 import { signInAsAdmin, signInAsUser } from '../helpers/auth.helper';
 
 describe('Concert management', () => {
@@ -21,16 +18,16 @@ describe('Concert management', () => {
   const authRepo = {
     findByEmail: jest.fn(),
   };
-  const seededAccounts = {
-    [seededAdminAccount.email]: {
+  const accountsByEmail = {
+    [accounts.admin.email]: {
       id: 1,
-      email: seededAdminAccount.email,
+      email: accounts.admin.email,
       passwordHash: '',
       role: Role.ADMIN,
     },
-    [seededUserAccount.email]: {
+    [accounts.user.email]: {
       id: 2,
-      email: seededUserAccount.email,
+      email: accounts.user.email,
       passwordHash: '',
       role: Role.USER,
     },
@@ -38,14 +35,14 @@ describe('Concert management', () => {
   let app: INestApplication;
 
   beforeAll(async () => {
-    seededAccounts[seededAdminAccount.email].passwordHash = await hashPassword(
-      seededAdminAccount.password,
+    accountsByEmail[accounts.admin.email].passwordHash = await hashPassword(
+      accounts.admin.password,
     );
-    seededAccounts[seededUserAccount.email].passwordHash = await hashPassword(
-      seededUserAccount.password,
+    accountsByEmail[accounts.user.email].passwordHash = await hashPassword(
+      accounts.user.password,
     );
     authRepo.findByEmail.mockImplementation((email: string) => {
-      return seededAccounts[email] ?? null;
+      return accountsByEmail[email] ?? null;
     });
 
     const moduleFixture: TestingModule = await Test.createTestingModule({
@@ -76,7 +73,7 @@ describe('Concert management', () => {
     await app.close();
   });
 
-  it('allows a seeded administrator to sign in', async () => {
+  it('allows an administrator to sign in', async () => {
     await expect(signInAsAdmin(app)).resolves.toEqual(expect.any(String));
   });
 
@@ -84,7 +81,7 @@ describe('Concert management', () => {
     await request(app.getHttpServer())
       .post('/auth/login')
       .send({
-        email: seededAdminAccount.email,
+        email: accounts.admin.email,
         password: 'InvalidPassword123!',
       })
       .expect(401);
