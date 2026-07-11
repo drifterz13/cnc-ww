@@ -30,6 +30,23 @@ export class ConcertRepo {
     });
   }
 
+  findById(id: number) {
+    return this.prisma.getClient().concert.findUnique({ where: { id } });
+  }
+
+  async hasReservationHistory(concertId: number) {
+    const concert = await this.prisma.getClient().concert.findUnique({
+      where: { id: concertId },
+      select: {
+        _count: {
+          select: { reservations: true },
+        },
+      },
+    });
+
+    return (concert?._count.reservations ?? 0) > 0;
+  }
+
   decrementAvailableSeats(concertId: number) {
     return this.prisma.getClient().concert.updateMany({
       where: {

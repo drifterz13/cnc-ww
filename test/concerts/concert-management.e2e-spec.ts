@@ -14,6 +14,8 @@ describe('Concert management', () => {
   const concertRepo = {
     create: jest.fn(),
     delete: jest.fn(),
+    findById: jest.fn().mockResolvedValue({ id: 1 }),
+    hasReservationHistory: jest.fn().mockResolvedValue(false),
   };
   const authRepo = {
     findByEmail: jest.fn(),
@@ -173,6 +175,8 @@ describe('Concert management', () => {
       .expect(204);
 
     expect(concertRepo.delete).toHaveBeenCalledWith(1);
+    expect(concertRepo.findById).toHaveBeenCalledWith(1);
+    expect(concertRepo.hasReservationHistory).toHaveBeenCalledWith(1);
   });
 
   it('prevents a user from removing a concert listing', async () => {
