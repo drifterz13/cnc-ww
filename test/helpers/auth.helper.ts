@@ -5,7 +5,7 @@ import {
   seededUserAccount,
 } from '../fixtures/accounts.fixture';
 
-async function signIn(
+export async function signIn(
   app: INestApplication,
   email: string,
   password: string,

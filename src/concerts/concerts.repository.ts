@@ -12,10 +12,27 @@ export class ConcertRepo {
   constructor(private readonly prisma: PrismaService) {}
 
   create(data: CreateConcertData) {
-    return this.prisma.concert.create({ data });
+    return this.prisma.getClient().concert.create({
+      data: {
+        ...data,
+        availableSeats: data.totalSeats,
+      },
+    });
   }
 
   delete(id: number) {
-    return this.prisma.concert.delete({ where: { id } });
+    return this.prisma.getClient().concert.delete({ where: { id } });
+  }
+
+  decrementAvailableSeats(concertId: number) {
+    return this.prisma.getClient().concert.updateMany({
+      where: {
+        id: concertId,
+        availableSeats: { gt: 0 },
+      },
+      data: {
+        availableSeats: { decrement: 1 },
+      },
+    });
   }
 }

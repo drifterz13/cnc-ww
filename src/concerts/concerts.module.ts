@@ -9,5 +9,6 @@ import { ConcertsService } from './concerts.service';
   imports: [PrismaModule, AuthModule],
   controllers: [ConcertsController],
   providers: [ConcertRepo, ConcertsService],
+  exports: [ConcertRepo],
 })
 export class ConcertsModule {}
