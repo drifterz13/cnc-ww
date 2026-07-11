@@ -84,7 +84,7 @@ describe('Concert reservation', () => {
     ).resolves.toBe(1);
   });
 
-  it('allocates only three reservations when five users reserve at once', async () => {
+  it('given three total seats, allocates only three reservations when five users reserve at once', async () => {
     const userSessions = await Promise.all(
       users.map((user) => signIn(app, user.email, user.password)),
     );

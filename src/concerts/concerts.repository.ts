@@ -24,6 +24,12 @@ export class ConcertRepo {
     return this.prisma.getClient().concert.delete({ where: { id } });
   }
 
+  findAll() {
+    return this.prisma.getClient().concert.findMany({
+      orderBy: { createdAt: 'desc' },
+    });
+  }
+
   decrementAvailableSeats(concertId: number) {
     return this.prisma.getClient().concert.updateMany({
       where: {

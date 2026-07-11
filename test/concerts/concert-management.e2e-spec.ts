@@ -73,7 +73,7 @@ describe('Concert management', () => {
     await app.close();
   });
 
-  it('allows an administrator to sign in', async () => {
+  it('allows an admin to sign in', async () => {
     await expect(signInAsAdmin(app)).resolves.toEqual(expect.any(String));
   });
 
@@ -87,7 +87,7 @@ describe('Concert management', () => {
       .expect(401);
   });
 
-  it('requires a signed-in administrator to manage concert listings', async () => {
+  it('requires a signed-in admin to manage concert listings', async () => {
     await request(app.getHttpServer())
       .post('/concerts')
       .send({
@@ -100,7 +100,7 @@ describe('Concert management', () => {
     expect(concertRepo.create).not.toHaveBeenCalled();
   });
 
-  it('allows an administrator to create a concert listing with its total seat capacity', async () => {
+  it('allows an admin to create a concert listing with its total seat capacity', async () => {
     const adminSession = await signInAsAdmin(app);
     concertRepo.create.mockResolvedValue({
       id: 1,
@@ -163,7 +163,7 @@ describe('Concert management', () => {
     expect(concertRepo.create).not.toHaveBeenCalled();
   });
 
-  it('allows an administrator to remove a concert listing', async () => {
+  it('allows an admin to remove a concert listing', async () => {
     const adminSession = await signInAsAdmin(app);
     concertRepo.delete.mockResolvedValue({ id: 1 });
 
