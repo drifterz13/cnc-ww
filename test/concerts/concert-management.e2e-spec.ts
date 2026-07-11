@@ -8,6 +8,7 @@ describe('Concert management', () => {
   let app: INestApplication;
   const concertRepo = {
     create: jest.fn(),
+    delete: jest.fn(),
   };
 
   beforeAll(async () => {
@@ -77,5 +78,13 @@ describe('Concert management', () => {
       .expect(400);
 
     expect(concertRepo.create).not.toHaveBeenCalled();
+  });
+
+  it('removes a concert listing', async () => {
+    concertRepo.delete.mockResolvedValue({ id: 1 });
+
+    await request(app.getHttpServer()).delete('/concerts/1').expect(204);
+
+    expect(concertRepo.delete).toHaveBeenCalledWith(1);
   });
 });

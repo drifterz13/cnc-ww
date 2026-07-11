@@ -9,4 +9,8 @@ export class ConcertsService {
   create(dto: CreateConcertDto) {
     return this.concertRepo.create(dto);
   }
+
+  delete(id: number) {
+    return this.concertRepo.delete(id);
+  }
 }

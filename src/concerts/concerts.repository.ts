@@ -14,4 +14,8 @@ export class ConcertRepo {
   create(data: CreateConcertData) {
     return this.prisma.concert.create({ data });
   }
+
+  delete(id: number) {
+    return this.prisma.concert.delete({ where: { id } });
+  }
 }
