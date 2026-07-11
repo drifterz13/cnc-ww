@@ -14,6 +14,7 @@ describe('Concert management', () => {
   const concertRepo = {
     create: jest.fn(),
     delete: jest.fn(),
+    findAll: jest.fn(),
     findById: jest.fn().mockResolvedValue({ id: 1 }),
     hasReservationHistory: jest.fn().mockResolvedValue(false),
   };
@@ -90,6 +91,8 @@ describe('Concert management', () => {
   });
 
   it('requires a signed-in admin to manage concert listings', async () => {
+    await request(app.getHttpServer()).get('/concerts/manage').expect(401);
+
     await request(app.getHttpServer())
       .post('/concerts')
       .send({
@@ -100,6 +103,40 @@ describe('Concert management', () => {
       .expect(401);
 
     expect(concertRepo.create).not.toHaveBeenCalled();
+  });
+
+  it('allows an admin to view concert listings', async () => {
+    const adminSession = await signInAsAdmin(app);
+    concertRepo.findAll.mockResolvedValue([
+      {
+        id: 1,
+        name: 'My Concert',
+        description: 'A free outdoor concert',
+        totalSeats: 200,
+        availableSeats: 200,
+      },
+    ]);
+
+    const response = await request(app.getHttpServer())
+      .get('/concerts/manage')
+      .set('Authorization', `Bearer ${adminSession}`)
+      .expect(200);
+
+    expect(response.body).toEqual([
+      expect.objectContaining({ id: 1, name: 'My Concert' }),
+    ]);
+    expect(concertRepo.findAll).toHaveBeenCalledTimes(1);
+  });
+
+  it('prevents a user from viewing admin concert listings', async () => {
+    const userSession = await signInAsUser(app);
+
+    await request(app.getHttpServer())
+      .get('/concerts/manage')
+      .set('Authorization', `Bearer ${userSession}`)
+      .expect(403);
+
+    expect(concertRepo.findAll).not.toHaveBeenCalled();
   });
 
   it('allows an admin to create a concert listing with its total seat capacity', async () => {

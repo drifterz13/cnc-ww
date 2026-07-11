@@ -2,6 +2,7 @@ import {
   Body,
   Controller,
   Delete,
+  Get,
   HttpCode,
   HttpStatus,
   Param,
@@ -19,6 +20,12 @@ import { ConcertsService } from './concerts.service';
 @Controller('concerts')
 export class ConcertsController {
   constructor(private readonly concertsService: ConcertsService) {}
+
+  @Get('manage')
+  @AdminOnly()
+  findAll() {
+    return this.concertsService.findAll();
+  }
 
   @Post()
   @AdminOnly()

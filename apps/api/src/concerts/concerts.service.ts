@@ -7,6 +7,10 @@ import { ConcertRepo } from './concerts.repository';
 export class ConcertsService {
   constructor(private readonly concertRepo: ConcertRepo) {}
 
+  findAll() {
+    return this.concertRepo.findAll();
+  }
+
   create(dto: CreateConcertDto) {
     return this.concertRepo.create(dto);
   }

@@ -7,7 +7,9 @@ export const metadata: Metadata = {
   description: 'Concert discovery and reservation',
 };
 
-export default function RootLayout({ children }: Readonly<{ children: ReactNode }>) {
+export default function RootLayout({
+  children,
+}: Readonly<{ children: ReactNode }>) {
   return (
     <html lang="en">
       <body>{children}</body>

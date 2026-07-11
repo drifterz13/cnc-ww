@@ -1,6 +1,7 @@
 :root {
   color-scheme: light;
   font-family: system-ui, sans-serif;
+  line-height: 1.5;
 }
 
 * {
@@ -15,4 +16,85 @@ main {
   margin: 0 auto;
   max-width: 70rem;
   padding: 2rem;
+}
+
+.narrow {
+  max-width: 32rem;
+}
+
+header {
+  align-items: center;
+  border-bottom: 1px solid #bbb;
+  display: flex;
+  justify-content: space-between;
+  padding: 1rem 2rem;
+}
+
+nav {
+  align-items: center;
+  display: flex;
+  gap: 1rem;
+}
+
+nav form {
+  margin: 0;
+}
+
+form {
+  display: grid;
+  gap: 0.5rem;
+  margin-block: 1rem;
+}
+
+input,
+textarea,
+button {
+  font: inherit;
+  padding: 0.6rem;
+}
+
+textarea {
+  min-height: 6rem;
+}
+
+button {
+  cursor: pointer;
+  width: fit-content;
+}
+
+button:disabled {
+  cursor: not-allowed;
+}
+
+article,
+section {
+  border-bottom: 1px solid #ccc;
+  padding-block: 1rem;
+}
+
+.summary {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 2rem;
+}
+
+.summary div {
+  min-width: 10rem;
+}
+
+.summary dd {
+  font-size: 2rem;
+  margin: 0;
+}
+
+table {
+  border-collapse: collapse;
+  width: 100%;
+}
+
+th,
+td {
+  border: 1px solid #bbb;
+  padding: 0.75rem;
+  text-align: left;
 }
