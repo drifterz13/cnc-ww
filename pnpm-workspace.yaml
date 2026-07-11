@@ -1,2 +1,7 @@
 allowBuilds:
   '@nestjs/core': true
+  '@prisma/engines': true
+  cpu-features: set this to true or false
+  prisma: true
+  protobufjs: set this to true or false
+  ssh2: set this to true or false
