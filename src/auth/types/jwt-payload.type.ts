@@ -1,4 +1,4 @@
-import { Role } from '../../generated/prisma/client';
+import { Role } from '../../infrastrucure/prisma/generated/client';
 
 export type JwtPayload = {
   sub: number;

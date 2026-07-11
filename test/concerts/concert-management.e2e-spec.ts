@@ -5,7 +5,7 @@ import { AuthModule } from '../../src/auth/auth.module';
 import { AuthRepo } from '../../src/auth/auth.repo';
 import { ConcertsModule } from '../../src/concerts/concerts.module';
 import { ConcertRepo } from '../../src/concerts/concerts.repository';
-import { Role } from '../../src/generated/prisma/client';
+import { Role } from '../../src/infrastrucure/prisma/generated/client';
 import { hashPassword } from '../../src/common/utils/password';
 import { accounts } from '../fixtures/accounts.fixture';
 import { signInAsAdmin, signInAsUser } from '../helpers/auth.helper';

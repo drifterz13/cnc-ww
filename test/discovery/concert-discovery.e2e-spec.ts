@@ -6,7 +6,7 @@ import { AuthRepo } from '../../src/auth/auth.repo';
 import { ConcertRepo } from '../../src/concerts/concerts.repository';
 import { hashPassword } from '../../src/common/utils/password';
 import { DiscoveryModule } from '../../src/discovery/discovery.module';
-import { Role } from '../../src/generated/prisma/client';
+import { Role } from '../../src/infrastrucure/prisma/generated/client';
 import { accounts } from '../fixtures/accounts.fixture';
 import { signInAsAdmin, signInAsUser } from '../helpers/auth.helper';
 

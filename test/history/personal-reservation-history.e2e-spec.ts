@@ -4,7 +4,10 @@ import request from 'supertest';
 import { AuthModule } from '../../src/auth/auth.module';
 import { GlobalExceptionFilter } from '../../src/common/filters/global-exception.filter';
 import { hashPassword } from '../../src/common/utils/password';
-import { ReservationStatus, Role } from '../../src/generated/prisma/client';
+import {
+  ReservationStatus,
+  Role,
+} from '../../src/infrastrucure/prisma/generated/client';
 import { HistoryModule } from '../../src/history/history.module';
 import { PrismaService } from '../../src/infrastrucure/prisma/prisma.service';
 import { accounts, users } from '../fixtures/accounts.fixture';

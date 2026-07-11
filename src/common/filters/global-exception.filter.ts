@@ -4,7 +4,7 @@ import {
   ExceptionFilter,
   HttpStatus,
 } from '@nestjs/common';
-import { Prisma } from '../../generated/prisma/client';
+import { Prisma } from '../../infrastrucure/prisma/generated/client';
 import { AppError } from '../errors/app.error';
 
 type ErrorResponse = {

@@ -1,5 +1,5 @@
 import { PrismaPg } from '@prisma/adapter-pg';
-import { PrismaClient, Role } from '../src/generated/prisma/client';
+import { PrismaClient, Role } from '../src/infrastrucure/prisma/generated/client';
 import { appConfig } from '../src/common/config/app.config';
 import { hashPassword } from '../src/common/utils/password';
 
