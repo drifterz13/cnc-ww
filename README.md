@@ -19,12 +19,15 @@ Concert Wow is a pnpm-workspace monorepo containing a NestJS API and a Next.js w
 
 ```bash
 pnpm install
+cp apps/api/.env.example apps/api/.env
 pnpm dev
 ```
 
 The API runs at `http://localhost:3000` and the web app at `http://localhost:3001`.
 Run either application independently with `pnpm dev:api` or `pnpm dev:web`.
 The web server reads `API_URL` and defaults to `http://localhost:3000`.
+New users can register at `http://localhost:3001/signup`; seeded users can sign in
+with the addresses in `apps/api/prisma/seed.ts` and the configured `SEED_PASSWORD`.
 
 To run the complete development stack in containers:
 

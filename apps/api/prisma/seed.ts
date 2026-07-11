@@ -1,5 +1,8 @@
 import { PrismaPg } from '@prisma/adapter-pg';
-import { PrismaClient, Role } from '../src/infrastrucure/prisma/generated/client';
+import {
+  PrismaClient,
+  Role,
+} from '../src/infrastrucure/prisma/generated/client';
 import { appConfig } from '../src/common/config/app.config';
 import { hashPassword } from '../src/common/utils/password';
 
@@ -8,12 +11,36 @@ const prisma = new PrismaClient({
 });
 
 const users = [
-  { email: 'admin@concert-wow.test', role: Role.ADMIN },
-  { email: 'user1@concert-wow.test', role: Role.USER },
-  { email: 'user2@concert-wow.test', role: Role.USER },
-  { email: 'user3@concert-wow.test', role: Role.USER },
-  { email: 'user4@concert-wow.test', role: Role.USER },
-  { email: 'user5@concert-wow.test', role: Role.USER },
+  {
+    fullName: 'Concert Wow Admin',
+    email: 'admin@concert-wow.test',
+    role: Role.ADMIN,
+  },
+  {
+    fullName: 'Concert User 1',
+    email: 'user1@concert-wow.test',
+    role: Role.USER,
+  },
+  {
+    fullName: 'Concert User 2',
+    email: 'user2@concert-wow.test',
+    role: Role.USER,
+  },
+  {
+    fullName: 'Concert User 3',
+    email: 'user3@concert-wow.test',
+    role: Role.USER,
+  },
+  {
+    fullName: 'Concert User 4',
+    email: 'user4@concert-wow.test',
+    role: Role.USER,
+  },
+  {
+    fullName: 'Concert User 5',
+    email: 'user5@concert-wow.test',
+    role: Role.USER,
+  },
 ];
 
 async function main(): Promise<void> {
@@ -23,7 +50,7 @@ async function main(): Promise<void> {
     users.map((user) =>
       prisma.user.upsert({
         where: { email: user.email },
-        update: { passwordHash, role: user.role },
+        update: { fullName: user.fullName, passwordHash, role: user.role },
         create: { ...user, passwordHash },
       }),
     ),

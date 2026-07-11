@@ -46,11 +46,13 @@ describe('Personal reservation history', () => {
     await prisma.user.createMany({
       data: [
         {
+          fullName: 'Concert Wow Admin',
           email: accounts.admin.email,
           passwordHash,
           role: Role.ADMIN,
         },
         ...users.map((user) => ({
+          fullName: user.email,
           email: user.email,
           passwordHash,
           role: Role.USER,
