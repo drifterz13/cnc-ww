@@ -1,8 +1,11 @@
 .git
+.next
 .pnpm-store
-coverage
-dist
-node_modules
-test
+**/.next
+**/coverage
+**/dist
+**/node_modules
+**/test
+*.log
 .env
 .env.*

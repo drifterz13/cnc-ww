@@ -16,6 +16,18 @@ services:
       - postgres
       - redis
 
+  web:
+    build:
+      context: .
+      dockerfile: apps/web/Dockerfile
+      target: development
+    environment:
+      API_URL: http://app:3000
+    ports:
+      - "3001:3001"
+    depends_on:
+      - app
+
   postgres:
     image: postgres:18.4-alpine
     environment:

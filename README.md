@@ -25,6 +25,12 @@ pnpm dev
 The API runs at `http://localhost:3000` and the web app at `http://localhost:3001`.
 Run either application independently with `pnpm dev:api` or `pnpm dev:web`.
 
+To run the complete development stack in containers:
+
+```bash
+docker compose -f docker-compose.dev.yml up --build
+```
+
 ## Common commands
 
 ```bash
