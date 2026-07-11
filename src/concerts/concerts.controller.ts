@@ -7,11 +7,15 @@ import {
   Param,
   ParseIntPipe,
   Post,
+  UseGuards,
 } from '@nestjs/common';
-import { AdminOnly } from '../common/decorators/roles.decorator';
+import { AdminOnly } from '../auth/decorators/roles.decorator';
+import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
+import { RolesGuard } from '../auth/guards/roles.guard';
 import { CreateConcertDto } from './dto/create-concert.dto';
 import { ConcertsService } from './concerts.service';
 
+@UseGuards(JwtAuthGuard, RolesGuard)
 @Controller('concerts')
 export class ConcertsController {
   constructor(private readonly concertsService: ConcertsService) {}

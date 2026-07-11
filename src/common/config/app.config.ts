@@ -9,4 +9,9 @@ export const appConfig = {
     .default('redis://localhost:6379')
     .asUrlString(),
   seedPassword: env.get('SEED_PASSWORD').required().asString(),
+  jwtSecret: env.get('JWT_SECRET').required().asString(),
+  jwtExpiresInSeconds: env
+    .get('JWT_EXPIRES_IN_SECONDS')
+    .default('3600')
+    .asIntPositive(),
 } as const;
