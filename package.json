@@ -8,6 +8,8 @@
     "dev": "pnpm --parallel --filter @concert-wow/api --filter @concert-wow/web dev",
     "dev:api": "pnpm --filter @concert-wow/api start:dev",
     "dev:web": "pnpm --filter @concert-wow/web dev",
+    "test:web": "pnpm --filter @concert-wow/web test",
+    "test:api": "pnpm --filter @concert-wow/api test:e2e",
     "format": "pnpm --recursive --if-present format",
     "lint": "pnpm --recursive --if-present lint",
     "typecheck": "pnpm --recursive --if-present typecheck"

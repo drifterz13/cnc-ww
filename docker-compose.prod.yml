@@ -12,8 +12,13 @@ services:
       POSTGRES_DB: concert_wow
     volumes:
       - postgres_data:/var/lib/postgresql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U wow -d concert_wow"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
 
-  migrate:
+  db-setup:
     build:
       context: .
       dockerfile: apps/api/Dockerfile
@@ -22,10 +27,12 @@ services:
         DATABASE_URL: *database-url
     environment:
       DATABASE_URL: *database-url
+      SEED_PASSWORD: ${SEED_PASSWORD:-Password123!}
     depends_on:
       postgres:
-        condition: service_started
-    command: ["pnpm", "--filter", "@concert-wow/api", "exec", "prisma", "migrate", "deploy"]
+        condition: service_healthy
+    command:
+      ["sh", "-c", "pnpm --filter @concert-wow/api exec prisma migrate deploy && pnpm --filter @concert-wow/api db:seed"]
 
   api:
     build:
@@ -36,8 +43,9 @@ services:
     environment:
       <<: *api-runtime-environment
       JWT_SECRET: ${JWT_SECRET:-mysecret}
+      SEED_PASSWORD: ${SEED_PASSWORD:-Password123!}
     depends_on:
-      migrate:
+      db-setup:
         condition: service_completed_successfully
     ports:
       - "3000:3000"
