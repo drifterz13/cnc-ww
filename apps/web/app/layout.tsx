@@ -1,6 +1,8 @@
 import type { Metadata } from 'next';
-import type { ReactNode } from 'react';
+import { Suspense, type ReactNode } from 'react';
 import { IBM_Plex_Sans_Thai, Inter, Roboto } from 'next/font/google';
+import { Toaster } from 'sonner';
+import { NoticeToast } from '@/components/notice-toast';
 import './globals.css';
 
 const inter = Inter({
@@ -34,7 +36,13 @@ export default function RootLayout({
       lang="en"
       className={`${inter.variable} ${roboto.variable} ${ibmPlexThai.variable}`}
     >
-      <body className={inter.className}>{children}</body>
+      <body className={inter.className}>
+        {children}
+        <Toaster closeButton position="top-right" richColors />
+        <Suspense fallback={null}>
+          <NoticeToast />
+        </Suspense>
+      </body>
     </html>
   );
 }

@@ -3,7 +3,7 @@ import { LoginScreen } from '@/components/login-screen';
 import { getSession } from '@/lib/session';
 import { Role } from '@/lib/types';
 
-export default async function LoginPage() {
+export default async function AdminLoginPage() {
   const session = await getSession();
 
   if (session) {
@@ -12,9 +12,9 @@ export default async function LoginPage() {
 
   return (
     <LoginScreen
-      description="Discover the concerts you love and reserve your free seat with confidence."
-      quote="“Your concert experience, simplified.”"
-      submitLabel="Login as User"
+      description="Manage concert listings and oversee reservation activity from one place."
+      quote="“Powering the tools that power the team.”"
+      submitLabel="Login as Administrator"
     />
   );
 }

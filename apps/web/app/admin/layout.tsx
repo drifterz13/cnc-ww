@@ -1,6 +1,6 @@
-import Link from 'next/link';
 import type { ReactNode } from 'react';
 import { logoutAction } from '@/app/auth/actions';
+import { AppShell } from '@/components/app-shell';
 import { requireRole } from '@/lib/session';
 import { Role } from '@/lib/types';
 
@@ -10,18 +10,8 @@ export default async function AdminLayout({
   await requireRole(Role.ADMIN);
 
   return (
-    <>
-      <header>
-        <strong>Concert Wow Admin</strong>
-        <nav aria-label="Admin navigation">
-          <Link href="/admin">Home</Link>
-          <Link href="/admin/history">History</Link>
-          <form action={logoutAction}>
-            <button type="submit">Log out</button>
-          </form>
-        </nav>
-      </header>
+    <AppShell logoutAction={logoutAction} role={Role.ADMIN}>
       {children}
-    </>
+    </AppShell>
   );
 }

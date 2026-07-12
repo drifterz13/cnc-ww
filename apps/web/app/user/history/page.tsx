@@ -17,31 +17,54 @@ export default async function UserHistoryPage() {
   }
 
   return (
-    <main>
-      <h1>My reservation history</h1>
-      {loadError ? <p role="alert">{loadError}</p> : null}
-      {history.length === 0 ? (
-        <p>No reservation history found.</p>
-      ) : (
-        <table>
-          <thead>
-            <tr>
-              <th>Concert</th>
-              <th>Reserved</th>
-              <th>Status</th>
-            </tr>
-          </thead>
-          <tbody>
-            {history.map((item) => (
-              <tr key={item.id}>
-                <td>{item.concert.name}</td>
-                <td>{formatDate(item.reservedAt)}</td>
-                <td>{item.status === 'ACTIVE' ? 'Active' : 'Cancelled'}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      )}
+    <main className="min-w-0 px-4 py-8 sm:px-8 md:px-10 md:py-16">
+      <div className="mx-auto max-w-[1180px]">
+        <h1 className="sr-only">My reservation history</h1>
+        {loadError ? (
+          <p
+            className="mb-6 rounded-control border border-danger-confirm bg-danger-confirm/10 px-4 py-3 text-danger-confirm"
+            role="alert"
+          >
+            {loadError}
+          </p>
+        ) : null}
+        {history.length === 0 ? (
+          <p className="rounded-card border border-border-subtle bg-surface p-10 text-muted">
+            No reservation history found.
+          </p>
+        ) : (
+          <div className="overflow-x-auto rounded-control border border-border">
+            <table className="min-w-[640px] w-full border-collapse font-table text-left">
+              <thead className="text-xl font-semibold leading-[1.5]">
+                <tr>
+                  <th className="border-b border-r border-border px-3 py-3">
+                    Concert name
+                  </th>
+                  <th className="border-b border-r border-border px-3 py-3">
+                    Reserved at
+                  </th>
+                  <th className="border-b border-border px-3 py-3">Status</th>
+                </tr>
+              </thead>
+              <tbody className="text-base leading-6">
+                {history.map((item) => (
+                  <tr key={item.id}>
+                    <td className="border-r border-border px-3 py-3">
+                      {item.concert.name}
+                    </td>
+                    <td className="border-r border-border px-3 py-3">
+                      {formatDate(item.reservedAt)}
+                    </td>
+                    <td className="px-3 py-3">
+                      {item.status === 'ACTIVE' ? 'Reserved' : 'Cancelled'}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </div>
     </main>
   );
 }

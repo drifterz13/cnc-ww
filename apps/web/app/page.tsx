@@ -9,6 +9,6 @@ export default async function HomePage() {
       ? '/admin'
       : session?.role === Role.USER
         ? '/user'
-        : '/login',
+        : '/access-level',
   );
 }
