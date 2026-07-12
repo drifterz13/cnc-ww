@@ -1,67 +1,86 @@
 # Concert Wow
 
-Concert Wow is a pnpm-workspace monorepo containing a NestJS API and a Next.js web app.
+## Architecture
 
-## Requirements
+- `apps/web`: Next.js App Router frontend. Server Components fetch protected data; Server Actions call the API.
+- `apps/api`: NestJS REST API organised by feature modules. JWT and role guards protect endpoints; services contain use-case logic; repositories access PostgreSQL through Prisma.
+- `Testing`: Testcontainers provides isolated PostgreSQL databases for API E2E tests. Mock Service Worker (MSW) and Testing Library provide web integration tests with mocked API calls.
+- `Database`: PostgreSQL, with the Prisma schema and migrations managing persistence.
 
-- Node.js 24
-- pnpm 11.11.0
-- PostgreSQL for local API development
+## Installation
 
-## Workspace layout
+Requirements: Node.js 24, pnpm 11.11.0, and Docker.
 
-- `apps/api` — NestJS API, Prisma schema, and API tests
-- `apps/web` — Next.js App Router web application
-- `packages/typescript-config` — shared TypeScript configuration
-- `packages/eslint-config` — shared ESLint flat configuration
-
-## Install and run
-
-```bash
-docker compose up -d
+```sh
 pnpm install
 cp apps/api/.env.example apps/api/.env
-pnpm db:migrate:deploy
+docker-compose up -d
+pnpm --filter @concert-wow/api db:migrate:deploy
+pnpm --filter @concert-wow/api db:seed
+```
+
+## Run locally
+
+```sh
 pnpm dev
 ```
 
-The API runs at `http://localhost:3000` and the web app at `http://localhost:3001`.
-Run either application independently with `pnpm dev:api` or `pnpm dev:web`.
-The web server reads `API_URL` and defaults to `http://localhost:3000`.
-New users can register at `http://localhost:3001/signup`; seeded users can sign in
-with the addresses in `apps/api/prisma/seed.ts`
+Web: http://localhost:3001  
+API: http://localhost:3000
 
-Docker Compose runs the local PostgreSQL service. The API and web app
-run directly on the host with `pnpm dev`.
+## Run in production containers
 
-```bash
-docker compose up -d
+```sh
+JWT_SECRET='replace-with-a-long-random-value' \
+SEED_PASSWORD='P@ssw0rd' \
+docker-compose -f docker-compose.prod.yml up --build -d
 ```
 
-## Production-image integration test
+Web: http://localhost:3001  
+API: http://localhost:3000
 
-Build and run the production API and web images together, including a one-shot
-Prisma migration job:
+Stop the production stack:
 
-```bash
-JWT_SECRET=replace-with-a-long-random-value \
-SEED_PASSWORD=Password123! \
-docker compose -f docker-compose.prod.yml up --build
+```sh
+docker-compose -f docker-compose.prod.yml down
 ```
 
-The web app is available at `http://localhost:3001`; the API is available at
-`http://localhost:3000`. The Compose file has test database credentials only;
-provide deployment-specific infrastructure and secrets outside this stack.
+## Tests
 
-## Common commands
-
-```bash
-pnpm build
-pnpm lint
-pnpm test
-pnpm test:e2e
-pnpm db:gen
-pnpm db:migrate
-pnpm db:migrate:deploy
-pnpm db:seed
+```sh
+pnpm run test:web
+pnpm run test:api
 ```
+
+## Login credentials
+
+| Role | Email | Password |
+| --- | --- | --- |
+| Admin | `admin@concert-wow.test` | `P@ssw0rd` |
+| User | `user1@concert-wow.test` | `P@ssw0rd` |
+
+## Scaling strategy
+
+- For millions of rows, I would first analyze slow queries and add indexes
+  around the queries that need them.
+- I would introduce Redis for data that does not change too often, so repeated
+  read requests do not always hit the database.
+- For larger datasets, such as tens of millions of rows, I would consider
+  database partitioning. This lets PostgreSQL prune irrelevant partitions and
+  use indexes more efficiently.
+- For high-traffic search or more complex read requirements, I would introduce
+  a separate read model using Elasticsearch or a similar tool. The read model
+  can be indexed and shaped for the queries we need.
+
+## Concurrency strategy
+
+- PostgreSQL uses `READ COMMITTED` isolation level by default.
+- Each reservation is handled in a database transaction.
+- Seat allocation uses an atomic update with a condition such as
+  `availableSeats > 0`.
+- The update locks the concert row while it is in progress. Concurrent
+  reservation writes for the same concert wait, then re-check the condition.
+- If 1,000 users reserve the last 10 seats, only 10 updates succeed. The
+  remaining requests fail without over-booking.
+- The unique user-and-concert constraint also prevents duplicate reservations.
+

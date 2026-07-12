@@ -27,7 +27,7 @@ services:
         DATABASE_URL: *database-url
     environment:
       DATABASE_URL: *database-url
-      SEED_PASSWORD: ${SEED_PASSWORD:-Password123!}
+      SEED_PASSWORD: ${SEED_PASSWORD:-P@ssw0rd}
     depends_on:
       postgres:
         condition: service_healthy
@@ -43,7 +43,7 @@ services:
     environment:
       <<: *api-runtime-environment
       JWT_SECRET: ${JWT_SECRET:-mysecret}
-      SEED_PASSWORD: ${SEED_PASSWORD:-Password123!}
+      SEED_PASSWORD: ${SEED_PASSWORD:-P@ssw0rd}
     depends_on:
       db-setup:
         condition: service_completed_successfully
