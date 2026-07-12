@@ -3,7 +3,7 @@ import type { JwtService } from '@nestjs/jwt';
 import { verifyPassword } from '../common/utils/password';
 import { Role } from '../infrastrucure/prisma/generated/client';
 import type { AuthRepo } from './auth.repo';
-import type { AuthService } from './auth.service';
+import { AuthService } from './auth.service';
 
 describe('AuthService', () => {
   const authRepo = {
@@ -13,19 +13,10 @@ describe('AuthService', () => {
   const jwtService = {
     signAsync: jest.fn(),
   };
-  let authService: AuthService;
-
-  beforeAll(async () => {
-    process.env.DATABASE_URL = 'postgresql://test:test@localhost:5432/test';
-    process.env.JWT_SECRET = 'test-secret';
-    process.env.SEED_PASSWORD = 'test-password';
-    const { AuthService: AuthServiceClass } = await import('./auth.service');
-
-    authService = new AuthServiceClass(
-      authRepo as unknown as AuthRepo,
-      jwtService as unknown as JwtService,
-    );
-  });
+  const authService = new AuthService(
+    authRepo as unknown as AuthRepo,
+    jwtService as unknown as JwtService,
+  );
 
   beforeEach(() => {
     jest.clearAllMocks();

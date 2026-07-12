@@ -14,7 +14,7 @@ function secret(name: string, fallback: string): string {
 export const appConfig = {
   databaseUrl: env.get('DATABASE_URL').required().asUrlString(),
   port: env.get('PORT').default('3000').asPortNumber(),
-  seedPassword: secret('SEED_PASSWORD', 'myseedsecret'),
+  seedPassword: secret('SEED_PASSWORD', 'P@ssw0rd'),
   jwtSecret: secret('JWT_SECRET', 'mysecret'),
   jwtExpiresInSeconds: env
     .get('JWT_EXPIRES_IN_SECONDS')

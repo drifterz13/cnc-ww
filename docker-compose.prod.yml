@@ -36,7 +36,6 @@ services:
     environment:
       <<: *api-runtime-environment
       JWT_SECRET: ${JWT_SECRET:-mysecret}
-      SEED_PASSWORD: ${SEED_PASSWORD:-myseed}
     depends_on:
       migrate:
         condition: service_completed_successfully
