@@ -1,10 +1,10 @@
 import { INestApplication, ValidationPipe } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import request from 'supertest';
-import { AuthModule } from '../../src/auth/auth.module';
-import { AuthRepo } from '../../src/auth/auth.repo';
-import { verifyPassword } from '../../src/common/utils/password';
-import { Role } from '../../src/infrastrucure/prisma/generated/client';
+import { AuthModule } from '../src/auth/auth.module';
+import { AuthRepo } from '../src/auth/auth.repo';
+import { verifyPassword } from '../src/common/utils/password';
+import { Role } from '../src/infrastrucure/prisma/generated/client';
 
 describe('Account signup', () => {
   const authRepo = {

@@ -1,14 +1,14 @@
 import { INestApplication, ValidationPipe } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import request from 'supertest';
-import { AuthModule } from '../../src/auth/auth.module';
-import { AuthRepo } from '../../src/auth/auth.repo';
-import { ConcertRepo } from '../../src/concerts/concerts.repository';
-import { hashPassword } from '../../src/common/utils/password';
-import { DiscoveryModule } from '../../src/discovery/discovery.module';
-import { Role } from '../../src/infrastrucure/prisma/generated/client';
-import { accounts } from '../fixtures/accounts.fixture';
-import { signInAsAdmin, signInAsUser } from '../helpers/auth.helper';
+import { AuthModule } from '../src/auth/auth.module';
+import { AuthRepo } from '../src/auth/auth.repo';
+import { ConcertRepo } from '../src/concerts/concerts.repository';
+import { hashPassword } from '../src/common/utils/password';
+import { DiscoveryModule } from '../src/discovery/discovery.module';
+import { Role } from '../src/infrastrucure/prisma/generated/client';
+import { accounts } from './fixtures/accounts.fixture';
+import { signInAsAdmin, signInAsUser } from './helpers/auth.helper';
 
 describe('Concert discovery', () => {
   const authRepo = {

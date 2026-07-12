@@ -1,17 +1,17 @@
 import { INestApplication, ValidationPipe } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import request from 'supertest';
-import { AuthModule } from '../../src/auth/auth.module';
-import { GlobalExceptionFilter } from '../../src/common/filters/global-exception.filter';
-import { hashPassword } from '../../src/common/utils/password';
+import { AuthModule } from '../src/auth/auth.module';
+import { GlobalExceptionFilter } from '../src/common/filters/global-exception.filter';
+import { hashPassword } from '../src/common/utils/password';
 import {
   ReservationStatus,
   Role,
-} from '../../src/infrastrucure/prisma/generated/client';
-import { PrismaService } from '../../src/infrastrucure/prisma/prisma.service';
-import { ReservationModule } from '../../src/reservation/reservation.module';
-import { accounts, users } from '../fixtures/accounts.fixture';
-import { signIn } from '../helpers/auth.helper';
+} from '../src/infrastrucure/prisma/generated/client';
+import { PrismaService } from '../src/infrastrucure/prisma/prisma.service';
+import { ReservationModule } from '../src/reservation/reservation.module';
+import { accounts, users } from './fixtures/accounts.fixture';
+import { signIn } from './helpers/auth.helper';
 
 describe('Concert reservation', () => {
   const password = 'Password123!';
