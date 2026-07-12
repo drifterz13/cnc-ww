@@ -2,7 +2,6 @@ name: concert-wow-prod
 
 x-api-runtime-environment: &api-runtime-environment
   DATABASE_URL: &database-url "${DATABASE_URL:-postgresql://wow:P%40ssw0rd@postgres:5432/concert_wow?schema=public}"
-  REDIS_URL: &redis-url "${REDIS_URL:-redis://redis:6379}"
 
 services:
   postgres:
@@ -13,11 +12,6 @@ services:
       POSTGRES_DB: concert_wow
     volumes:
       - postgres_data:/var/lib/postgresql
-
-  redis:
-    image: redis:8.8-alpine
-    volumes:
-      - redis_data:/data
 
   migrate:
     build:
@@ -46,8 +40,6 @@ services:
     depends_on:
       migrate:
         condition: service_completed_successfully
-      redis:
-        condition: service_started
     ports:
       - "3000:3000"
     restart: unless-stopped
@@ -67,4 +59,3 @@ services:
 
 volumes:
   postgres_data:
-  redis_data:

@@ -14,10 +14,6 @@ function secret(name: string, fallback: string): string {
 export const appConfig = {
   databaseUrl: env.get('DATABASE_URL').required().asUrlString(),
   port: env.get('PORT').default('3000').asPortNumber(),
-  redisUrl: env
-    .get('REDIS_URL')
-    .default('redis://localhost:6379')
-    .asUrlString(),
   seedPassword: secret('SEED_PASSWORD', 'myseedsecret'),
   jwtSecret: secret('JWT_SECRET', 'mysecret'),
   jwtExpiresInSeconds: env

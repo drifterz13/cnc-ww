@@ -6,7 +6,7 @@ Concert Wow is a pnpm-workspace monorepo containing a NestJS API and a Next.js w
 
 - Node.js 24
 - pnpm 11.11.0
-- PostgreSQL and Redis for local API development
+- PostgreSQL for local API development
 
 ## Workspace layout
 
@@ -31,7 +31,7 @@ The web server reads `API_URL` and defaults to `http://localhost:3000`.
 New users can register at `http://localhost:3001/signup`; seeded users can sign in
 with the addresses in `apps/api/prisma/seed.ts` and the configured `SEED_PASSWORD`.
 
-Docker Compose runs the local PostgreSQL and Redis services. The API and web app
+Docker Compose runs the local PostgreSQL service. The API and web app
 run directly on the host with `pnpm dev`.
 
 ```bash

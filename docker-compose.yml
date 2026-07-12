@@ -10,21 +10,5 @@ services:
     volumes:
       - postgres_data:/var/lib/postgresql
 
-  redis:
-    image: redis:8.8-alpine
-    ports:
-      - "6379:6379"
-    volumes:
-      - redis_data:/data
-
-  redisinsight:
-    image: redis/redisinsight:latest
-    ports:
-      - "5540:5540"
-    volumes:
-      - insight_store:/data
-
 volumes:
   postgres_data:
-  redis_data:
-  insight_store:

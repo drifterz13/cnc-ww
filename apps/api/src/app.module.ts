@@ -6,12 +6,10 @@ import { AuditModule } from './audit/audit.module';
 import { DiscoveryModule } from './discovery/discovery.module';
 import { ReservationModule } from './reservation/reservation.module';
 import { HistoryModule } from './history/history.module';
-import { RedisModule } from './infrastrucure/redis/redis.module';
 import { AuthModule } from './auth/auth.module';
 
 @Module({
   imports: [
-    RedisModule,
     AuthModule,
     ConcertsModule,
     AuditModule,
