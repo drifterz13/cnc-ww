@@ -29,7 +29,7 @@ The API runs at `http://localhost:3000` and the web app at `http://localhost:300
 Run either application independently with `pnpm dev:api` or `pnpm dev:web`.
 The web server reads `API_URL` and defaults to `http://localhost:3000`.
 New users can register at `http://localhost:3001/signup`; seeded users can sign in
-with the addresses in `apps/api/prisma/seed.ts` and the configured `SEED_PASSWORD`.
+with the addresses in `apps/api/prisma/seed.ts`
 
 Docker Compose runs the local PostgreSQL service. The API and web app
 run directly on the host with `pnpm dev`.

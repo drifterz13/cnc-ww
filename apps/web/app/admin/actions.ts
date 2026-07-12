@@ -18,7 +18,9 @@ export async function createConcertAction(formData: FormData): Promise<void> {
   try {
     await apiClient.post('/concerts', { name, description, totalSeats });
   } catch (error) {
-    redirect(buildRedirectPath('/admin', { error: getErrorMessage(error) }));
+    return redirect(
+      buildRedirectPath('/admin', { error: getErrorMessage(error) }),
+    );
   }
 
   revalidatePath('/admin');
@@ -32,7 +34,9 @@ export async function deleteConcertAction(concertId: number): Promise<void> {
   try {
     await apiClient.delete(`/concerts/${concertId}`);
   } catch (error) {
-    redirect(buildRedirectPath('/admin', { error: getErrorMessage(error) }));
+    return redirect(
+      buildRedirectPath('/admin', { error: getErrorMessage(error) }),
+    );
   }
 
   revalidatePath('/admin');

@@ -22,7 +22,9 @@ async function mutateReservation(
       await apiClient.delete(`/concerts/${concertId}/reservations`);
     }
   } catch (error) {
-    redirect(buildRedirectPath('/user', { error: getErrorMessage(error) }));
+    return redirect(
+      buildRedirectPath('/user', { error: getErrorMessage(error) }),
+    );
   }
 
   revalidatePath('/user');

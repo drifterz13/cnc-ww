@@ -8,6 +8,7 @@ allowBuilds:
   argon2: true
   cpu-features: false
   esbuild: false
+  msw: true
   prisma: true
   protobufjs: false
   sharp: true

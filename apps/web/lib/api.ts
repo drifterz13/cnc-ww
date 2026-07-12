@@ -12,26 +12,22 @@ type ApiClientOptions = {
   fetchImpl?: typeof fetch;
 };
 
-const DEFAULT_API_URL = (process.env.API_URL ?? 'http://localhost:3000').replace(
-  /\/$/,
-  '',
-);
+const DEFAULT_API_URL = (
+  process.env.API_URL ?? 'http://localhost:3000'
+).replace(/\/$/, '');
 
 export class ApiClient {
   private readonly baseUrl: string;
   private readonly token?: string;
-  private readonly fetchImpl: typeof fetch;
+  private readonly fetchImpl?: typeof fetch;
 
   constructor(options: ApiClientOptions = {}) {
     this.baseUrl = options.baseUrl ?? DEFAULT_API_URL;
     this.token = options.token;
-    this.fetchImpl = options.fetchImpl ?? fetch;
+    this.fetchImpl = options.fetchImpl;
   }
 
-  get<TResponse>(
-    path: ApiPath,
-    init?: Omit<RequestInit, 'body' | 'method'>,
-  ) {
+  get<TResponse>(path: ApiPath, init?: Omit<RequestInit, 'body' | 'method'>) {
     return this.request<TResponse>(path, {
       ...init,
       method: 'GET',
@@ -77,7 +73,9 @@ export class ApiClient {
     let response: Response;
 
     try {
-      response = await this.fetchImpl(`${this.baseUrl}${path}`, {
+      const fetch = this.fetchImpl ?? globalThis.fetch;
+
+      response = await fetch(`${this.baseUrl}${path}`, {
         ...init,
         cache: 'no-store',
         headers,

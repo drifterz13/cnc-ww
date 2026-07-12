@@ -69,5 +69,5 @@ export async function signupAction(
 
 export async function logoutAction(): Promise<void> {
   await clearSession();
-  redirect('/login');
+  redirect('/');
 }

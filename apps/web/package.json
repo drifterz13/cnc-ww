@@ -8,21 +8,34 @@
     "format": "prettier --write \"app/**/*.{ts,tsx,css}\" \"lib/**/*.{ts,tsx}\" \"*.{js,mjs,json}\"",
     "lint": "eslint .",
     "start": "next start --port 3001",
-    "typecheck": "tsc --noEmit --incremental false"
+    "typecheck": "tsc --noEmit --incremental false",
+    "test": "jest --config jest.config.mjs",
+    "test:watch": "jest --config jest.config.mjs --watch",
+    "test:coverage": "jest --config jest.config.mjs --coverage"
   },
   "dependencies": {
     "next": "^16.2.10",
     "react": "^19.2.7",
-    "react-dom": "^19.2.7"
+    "react-dom": "^19.2.7",
+    "sonner": "^2.0.7"
   },
   "devDependencies": {
     "@concert-wow/eslint-config": "workspace:*",
     "@concert-wow/typescript-config": "workspace:*",
     "@tailwindcss/postcss": "^4.3.2",
+    "@testing-library/jest-dom": "^6.9.1",
+    "@testing-library/react": "^16.3.2",
+    "@testing-library/user-event": "^14.6.1",
+    "@types/jest": "29.5.14",
     "@types/node": "^26.1.1",
     "@types/react": "^19.2.17",
     "@types/react-dom": "^19.2.3",
+    "cross-fetch": "^4.1.0",
     "eslint": "^9.39.4",
+    "jest": "29.7.0",
+    "jest-environment-jsdom": "29.7.0",
+    "msw": "^2.15.0",
+    "next-router-mock": "^1.0.5",
     "prettier": "^3.9.5",
     "tailwindcss": "^4.3.2",
     "typescript": "^5.9.3"
