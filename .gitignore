@@ -41,5 +41,7 @@ coverage/
 !.vscode/tasks.json
 !.vscode/launch.json
 !.vscode/extensions.json
+
+# Development
 apps/api/src/infrastrucure/prisma/generated/
 apps/api/test/.runtime/

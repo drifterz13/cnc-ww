@@ -18,8 +18,10 @@ Concert Wow is a pnpm-workspace monorepo containing a NestJS API and a Next.js w
 ## Install and run
 
 ```bash
+docker compose up -d
 pnpm install
 cp apps/api/.env.example apps/api/.env
+pnpm db:migrate:deploy
 pnpm dev
 ```
 
@@ -29,11 +31,27 @@ The web server reads `API_URL` and defaults to `http://localhost:3000`.
 New users can register at `http://localhost:3001/signup`; seeded users can sign in
 with the addresses in `apps/api/prisma/seed.ts` and the configured `SEED_PASSWORD`.
 
-To run the complete development stack in containers:
+Docker Compose runs the local PostgreSQL and Redis services. The API and web app
+run directly on the host with `pnpm dev`.
 
 ```bash
-docker compose -f docker-compose.dev.yml up --build
+docker compose up -d
 ```
+
+## Production-image integration test
+
+Build and run the production API and web images together, including a one-shot
+Prisma migration job:
+
+```bash
+JWT_SECRET=replace-with-a-long-random-value \
+SEED_PASSWORD=Password123! \
+docker compose -f docker-compose.prod.yml up --build
+```
+
+The web app is available at `http://localhost:3001`; the API is available at
+`http://localhost:3000`. The Compose file has test database credentials only;
+provide deployment-specific infrastructure and secrets outside this stack.
 
 ## Common commands
 
@@ -44,5 +62,6 @@ pnpm test
 pnpm test:e2e
 pnpm db:gen
 pnpm db:migrate
+pnpm db:migrate:deploy
 pnpm db:seed
 ```

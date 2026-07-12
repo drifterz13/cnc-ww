@@ -20,6 +20,7 @@
     "test:e2e": "pnpm --filter @concert-wow/api test:e2e",
     "db:gen": "pnpm --filter @concert-wow/api db:gen",
     "db:migrate": "pnpm --filter @concert-wow/api db:migrate",
+    "db:migrate:deploy": "pnpm --filter @concert-wow/api db:migrate:deploy",
     "db:reset": "pnpm --filter @concert-wow/api db:reset",
     "db:seed": "pnpm --filter @concert-wow/api db:seed",
     "db:studio": "pnpm --filter @concert-wow/api db:studio"

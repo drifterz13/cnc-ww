@@ -2,38 +2,28 @@ FROM node:24-alpine AS base
 
 WORKDIR /app
 
-ENV COREPACK_HOME=/pnpm
 ENV NEXT_TELEMETRY_DISABLED=1
 
-RUN corepack enable && corepack prepare pnpm@11.11.0 --activate && chown -R node:node /pnpm
+RUN corepack enable && corepack prepare pnpm@11.11.0 --activate
 
 FROM base AS dependencies
 
 COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
-COPY apps/api/package.json ./apps/api/package.json
 COPY apps/web/package.json ./apps/web/package.json
 COPY packages/eslint-config/package.json ./packages/eslint-config/package.json
 COPY packages/typescript-config/package.json ./packages/typescript-config/package.json
 
-RUN pnpm install --frozen-lockfile && chown -R node:node /app
-
-FROM dependencies AS development
-
-COPY --chown=node:node . .
-
-USER node
-
-WORKDIR /app/apps/web
-
-CMD ["pnpm", "exec", "next", "dev", "--hostname", "0.0.0.0", "--port", "3001"]
+RUN --mount=type=cache,id=pnpm-store,target=/pnpm/store \
+    pnpm config set store-dir /pnpm/store && \
+    pnpm install --filter @concert-wow/web... --frozen-lockfile
 
 FROM dependencies AS build
 
-COPY --chown=node:node . .
+COPY apps/web ./apps/web
+COPY packages/eslint-config ./packages/eslint-config
+COPY packages/typescript-config ./packages/typescript-config
 
-USER node
-
-RUN pnpm --filter @concert-wow/web build
+RUN pnpm --filter @concert-wow/web run build
 
 FROM node:24-alpine AS production
 
@@ -44,9 +34,13 @@ ENV NODE_ENV=production
 ENV NEXT_TELEMETRY_DISABLED=1
 ENV PORT=3001
 
-COPY --from=build --chown=node:node /app/apps/web/.next/standalone ./
-COPY --from=build --chown=node:node /app/apps/web/.next/static ./apps/web/.next/static
+RUN addgroup --system --gid 1001 nodejs && adduser --system --uid 1001 nextjs
 
-USER node
+COPY --from=build --chown=nextjs:nodejs /app/apps/web/.next/standalone ./
+COPY --from=build --chown=nextjs:nodejs /app/apps/web/.next/static ./apps/web/.next/static
+
+USER nextjs
+
+EXPOSE 3001
 
 CMD ["node", "apps/web/server.js"]

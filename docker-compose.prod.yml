@@ -1,0 +1,70 @@
+name: concert-wow-prod
+
+x-api-runtime-environment: &api-runtime-environment
+  DATABASE_URL: &database-url "${DATABASE_URL:-postgresql://wow:P%40ssw0rd@postgres:5432/concert_wow?schema=public}"
+  REDIS_URL: &redis-url "${REDIS_URL:-redis://redis:6379}"
+
+services:
+  postgres:
+    image: postgres:18.4-alpine
+    environment:
+      POSTGRES_USER: wow
+      POSTGRES_PASSWORD: P@ssw0rd
+      POSTGRES_DB: concert_wow
+    volumes:
+      - postgres_data:/var/lib/postgresql
+
+  redis:
+    image: redis:8.8-alpine
+    volumes:
+      - redis_data:/data
+
+  migrate:
+    build:
+      context: .
+      dockerfile: apps/api/Dockerfile
+      target: build
+      args:
+        DATABASE_URL: *database-url
+    environment:
+      DATABASE_URL: *database-url
+    depends_on:
+      postgres:
+        condition: service_started
+    command: ["pnpm", "--filter", "@concert-wow/api", "exec", "prisma", "migrate", "deploy"]
+
+  api:
+    build:
+      context: .
+      dockerfile: apps/api/Dockerfile
+      args:
+        DATABASE_URL: *database-url
+    environment:
+      <<: *api-runtime-environment
+      JWT_SECRET: ${JWT_SECRET:-mysecret}
+      SEED_PASSWORD: ${SEED_PASSWORD:-myseed}
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+      redis:
+        condition: service_started
+    ports:
+      - "3000:3000"
+    restart: unless-stopped
+
+  web:
+    build:
+      context: .
+      dockerfile: apps/web/Dockerfile
+    environment:
+      API_URL: http://api:3000
+    depends_on:
+      api:
+        condition: service_started
+    ports:
+      - "3001:3001"
+    restart: unless-stopped
+
+volumes:
+  postgres_data:
+  redis_data:
